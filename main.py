@@ -28,6 +28,12 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    '-act',
+    action = 'store_true',
+    help = 'Compute the Autocorrelation Table of the SBoxes'
+)
+
+parser.add_argument(
     '-format',
     choices = ['ansi', 'csv', 'png'],
     default = 'ansi',
@@ -64,7 +70,7 @@ def table_to_ansi(table):
     result = ''
     for y, line in enumerate(table):
         for x, elt in enumerate(line):
-            if elt == 0 or (x, y) == (0, 0):
+            if elt == 0 or x == 0 or y == 0:
                 result += green
             elif abs(elt) == 2:
                 result += green2
@@ -94,7 +100,7 @@ def table_to_png(table):
 
     for y, line in enumerate(table):
         for x, elt in enumerate(line):
-            if elt == 0 or (x, y) == (0, 0):
+            if elt == 0 or x == 0 or y == 0:
                 color = green
             elif abs(elt) == 2:
                 color = green2
@@ -155,6 +161,21 @@ for sbox_file in args.input_files:
             filename = os.path.join(
                 args.output,
                 f"ddt_{filename}.{format}"
+            )
+        print_table(table, format, filename)
+        print()
+
+    if args.act:
+        print("Autocorrelation Table")
+        table = S.autocorrelation_table()
+        format = args.format
+        if args.output == 'stdout':
+            filename = 'stdout'
+        else:
+            filename = os.path.splitext(os.path.basename(sbox_file))[0]
+            filename = os.path.join(
+                args.output,
+                f"act_{filename}.{format}"
             )
         print_table(table, format, filename)
         print()

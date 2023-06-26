@@ -1,19 +1,7 @@
 import re
-
-def walsh_spectrum(array):
-    """
-    In-place Fast Walsh-Hadamard Transform of array
-    """
-    h = 1
-    n = len(array)
-    while h < n:
-        for i in range(0, n, h*2):
-            for j in range(i, i+h):
-                x = array[j]
-                y = array[j+h]
-                array[j]   = x+y
-                array[j+h] = x-y
-        h *= 2
+from functools import lru_cache
+import numpy as np
+from hadamard import *
 
 class SBox:
     def __init__(self, *args):
@@ -51,7 +39,7 @@ class SBox:
         array = map(lambda x: int(x, base), array)
         return cls(array)
 
-
+    @lru_cache()
     def linear_approximation_table(self):
         nrows = 1 << self.m
         ncols = 1 << self.n
@@ -67,6 +55,7 @@ class SBox:
 
         return A
 
+    @lru_cache()
     def difference_distribution_table(self):
         nrows = 1 << self.m
         ncols = 1 << self.n
@@ -78,3 +67,10 @@ class SBox:
                 A[di][si^self.S_list[i^di]] += 1
 
         return A
+
+    @lru_cache()
+    def autocorrelation_table(self):
+        ddt = np.matrix(self.difference_distribution_table())
+        had = hadamard_matrix(self.n)
+        A = ddt * had
+        return A.tolist()
