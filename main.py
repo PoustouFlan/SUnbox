@@ -83,7 +83,8 @@ def table_to_png(table):
     green2 = (22, 222, 22),
     yellow = (255, 255, 0),
 
-    upper = max(max(line) for line in table[1:])
+    #upper = max(max(line) for line in table[1:])
+    upper = table[0][0]
     size = len(str(upper)) + 2
 
     width = len(table[0])
@@ -116,7 +117,7 @@ def print_table(table, format='ansi', filename='stdout'):
 
     if filename == 'stdout':
         if format == 'png':
-            print(output.tobytes.hex())
+            print(output.tobytes().hex())
         else:
             print(output)
     elif format == 'png':
