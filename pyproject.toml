@@ -11,4 +11,4 @@ dependencies = [
 ]
 
 [project.scripts]
-sboxyourmom = "main:main"
+sboxyourmom = "main.py"
