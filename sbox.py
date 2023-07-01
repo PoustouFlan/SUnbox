@@ -74,3 +74,17 @@ class SBox:
         had = hadamard_matrix(self.n)
         A = ddt * had
         return A.tolist()
+
+    @lru_cache()
+    def linear_structures(self):
+        n = self.n
+        m = self.m
+        act = self.autocorrelation_table()
+        ret = []
+        for j in range(1, 1 << n):
+            for i in range(1, 1 << m):
+                if abs(act[i][j]) == (1 << m):
+                    c = ((1 - (act[i][j] >> m)) >> 1)
+                    ret.append((j, i, c))
+
+        return ret

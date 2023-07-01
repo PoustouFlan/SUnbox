@@ -135,6 +135,9 @@ def print_table(table, format='ansi', filename='stdout'):
 for sbox_file in args.input_files:
     print(sbox_file, '\n')
     S = sbox.SBox.from_file(sbox_file)
+    print("Linear structures:")
+    print(S.linear_structures())
+
     if args.lat:
         print("Linear Approximation Table")
         table = S.linear_approximation_table()
