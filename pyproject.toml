@@ -11,4 +11,4 @@ dependencies = [
 ]
 
 [project.scripts]
-sboxyourmom = "src.main:main"
+sboxyourmom = "main:main"

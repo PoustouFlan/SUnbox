@@ -1,7 +1,7 @@
 import re
 from functools import lru_cache
 import numpy as np
-from hadamard import *
+from src.hadamard import *
 
 class SBox:
     def __init__(self, *args):

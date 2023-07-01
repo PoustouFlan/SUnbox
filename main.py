@@ -1,5 +1,5 @@
 import argparse
-import sbox
+import src.sbox
 import os
 from PIL import Image
 
