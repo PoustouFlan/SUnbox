@@ -1,7 +1,10 @@
+#!/usr/bin/env python
+
 import argparse
-import src.sbox
 import os
 from PIL import Image
+
+from sboxyourmom.sbox import SBox
 
 parser = argparse.ArgumentParser(
     description = "An open-source SBox analysis utility",
@@ -134,7 +137,7 @@ def print_table(table, format='ansi', filename='stdout'):
 
 for sbox_file in args.input_files:
     print(sbox_file, '\n')
-    S = sbox.SBox.from_file(sbox_file)
+    S = SBox.from_file(sbox_file)
     print("Linear structures:")
     print(S.linear_structures())
 
