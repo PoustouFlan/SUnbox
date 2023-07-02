@@ -41,6 +41,12 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    '-auto',
+    action = 'store_true',
+    help = 'Performs an automatic analysis of the SBoxes and outputs relevant information'
+)
+
+parser.add_argument(
     '-format',
     choices = ['ansi', 'csv', 'png'],
     default = 'ansi',
@@ -142,8 +148,26 @@ def print_table(table, format='ansi', filename='stdout'):
 for sbox_file in args.input_files:
     debug(sbox_file, '\n')
     S = SBox.from_file(sbox_file)
-    debug("Linear structures:")
-    debug(S.linear_structures())
+
+    if args.auto:
+        debug("Automatic analysis.")
+        if S.is_linear():
+            debug("SBox is linear! It is equivalent to the following matrix M:")
+            for line in S.matrix_equivalent():
+                print(*line)
+            debug("That is, SBox(x) = M·x for all x. "
+                  "(x represented as a column binary vector)")
+        elif S.is_affine():
+            debug("SBox is affine! It is equivalent to the following matrices A, B:")
+            A, B = S.affine_equivalent()
+            for y in range(S.n):
+                print(*A[y], ' \t ', B[y][0])
+            debug("That is, SBox(x) = A·x + B for all x. "
+                  "(x represented as a column binary vector)")
+        else:
+            debug("SBox is not linear.")
+    #debug("Linear structures:")
+    #debug(S.linear_structures())
 
     if args.lat:
         debug("Linear Approximation Table")

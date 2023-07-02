@@ -88,3 +88,75 @@ class SBox:
                     ret.append((j, i, c))
 
         return ret
+
+    @lru_cache()
+    def is_linear(self):
+        LAT = self.linear_approximation_table()
+        nrows = 1 << self.m
+        ncols = 1 << self.n
+
+        for y in range(nrows):
+            for x in range(ncols):
+                if LAT[y][x] not in (LAT[0][0], 0):
+                    return False
+
+        return True
+
+    @lru_cache()
+    def is_affine(self):
+        LAT = self.linear_approximation_table()
+        nrows = 1 << self.m
+        ncols = 1 << self.n
+
+        for y in range(nrows):
+            for x in range(ncols):
+                if abs(LAT[y][x]) not in (LAT[0][0], 0):
+                    return False
+
+        return True
+
+
+    @lru_cache()
+    def matrix_equivalent(self):
+        if not self.is_linear():
+            return None
+
+        LAT = self.linear_approximation_table()
+        M = []
+        for bit in range(self.n):
+            col = 1 << bit
+            row = 0
+            while LAT[row][col] == 0:
+                row += 1
+            binary_vector = [
+                (row >> x) & 1 for x in range(self.m)
+            ]
+            M.append(binary_vector)
+
+        return M
+
+    @lru_cache()
+    def affine_equivalent(self):
+        if not self.is_affine():
+            return None
+
+        LAT = self.linear_approximation_table()
+        A = []
+        B = []
+        for bit in range(self.n):
+            col = 1 << bit
+            row = 0
+            while LAT[row][col] == 0:
+                row += 1
+
+            binary_vector = [
+                (row >> x) & 1 for x in range(self.m)
+            ]
+            A.append(binary_vector)
+
+            if LAT[row][col] > 0:
+                B.append([0])
+            else:
+                B.append([1])
+
+        return A, B
