@@ -3,8 +3,12 @@
 import argparse
 import os
 from PIL import Image
+from sys import stderr
 
 from sboxyourmom.sbox import SBox
+
+def debug(*args, **kwargs):
+    print(*args, **kwargs, file = stderr, flush = True)
 
 parser = argparse.ArgumentParser(
     description = "An open-source SBox analysis utility",
@@ -136,13 +140,13 @@ def print_table(table, format='ansi', filename='stdout'):
             file.write(output)
 
 for sbox_file in args.input_files:
-    print(sbox_file, '\n')
+    debug(sbox_file, '\n')
     S = SBox.from_file(sbox_file)
-    print("Linear structures:")
-    print(S.linear_structures())
+    debug("Linear structures:")
+    debug(S.linear_structures())
 
     if args.lat:
-        print("Linear Approximation Table")
+        debug("Linear Approximation Table")
         table = S.linear_approximation_table()
         format = args.format
         if args.output == 'stdout':
@@ -154,10 +158,10 @@ for sbox_file in args.input_files:
                 f"lat_{filename}.{format}"
             )
         print_table(table, format, filename)
-        print()
+        debug()
 
     if args.ddt:
-        print("Difference Distribution Table")
+        debug("Difference Distribution Table")
         table = S.difference_distribution_table()
         format = args.format
         if args.output == 'stdout':
@@ -169,10 +173,10 @@ for sbox_file in args.input_files:
                 f"ddt_{filename}.{format}"
             )
         print_table(table, format, filename)
-        print()
+        debug()
 
     if args.act:
-        print("Autocorrelation Table")
+        debug("Autocorrelation Table")
         table = S.autocorrelation_table()
         format = args.format
         if args.output == 'stdout':
@@ -184,4 +188,4 @@ for sbox_file in args.input_files:
                 f"act_{filename}.{format}"
             )
         print_table(table, format, filename)
-        print()
+        debug()
