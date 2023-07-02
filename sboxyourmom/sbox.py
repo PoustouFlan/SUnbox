@@ -23,7 +23,10 @@ class SBox:
 
     @classmethod
     def from_file(cls, filename, sep=' |,|;|\t|\r|\n', base=None):
-
+        """
+        Reads a SBox from a file.
+        If the base is not specified, it is automatically detected.
+        """
         with open(filename, 'r') as file:
             array = re.split(sep, file.read().lower())
             array = list(filter(lambda x: x != '', array))
@@ -41,6 +44,14 @@ class SBox:
 
     @lru_cache()
     def linear_approximation_table(self):
+        """
+        Returns the Linear Approximation Table (LAT) for this SBox.
+        LAT[a][b] corresponds to the probability P[a·x = b·S(x)],
+        where · denotes a vector dot product.
+
+        Absolute bias scale is used, therefore the actual value
+        corresponds to the probability - 1/2, multiplied by 2^m.
+        """
         nrows = 1 << self.m
         ncols = 1 << self.n
 
@@ -57,6 +68,12 @@ class SBox:
 
     @lru_cache()
     def difference_distribution_table(self):
+        """
+        Returns the Difference Distribution Table (DDT) for this SBox.
+        DDT[a][b] corresponds to the probability P[S(x⊕a) = S(x)⊕b].
+
+        Values are multiplied by 2^m to remain integers.
+        """
         nrows = 1 << self.m
         ncols = 1 << self.n
 
@@ -70,6 +87,14 @@ class SBox:
 
     @lru_cache()
     def autocorrelation_table(self):
+        """
+        Returns the Autocorrelation Table (ACT) for this SBox.
+        ACT[a][b] corresponds to the probability P[b·(S(x)⊕S(x⊕a)) = 0],
+        where · denotes a vector dot product.
+
+        Absolute bias scale is used, therefore the actual value
+        corresponds to the probability - 1/2, multiplied by 2^m.
+        """
         ddt = np.matrix(self.difference_distribution_table())
         had = hadamard_matrix(self.n)
         A = ddt * had
@@ -77,20 +102,30 @@ class SBox:
 
     @lru_cache()
     def linear_structures(self):
+        """
+        Returns a list of all three-tuples (b,a,c) (a,b ≥ 1) such that
+        b·(S(x)⊕S(x⊕a)) = c for all x, where · denotes a vector dot
+        product.
+        """
         n = self.n
         m = self.m
         act = self.autocorrelation_table()
         ret = []
-        for j in range(1, 1 << n):
-            for i in range(1, 1 << m):
-                if abs(act[i][j]) == (1 << m):
-                    c = ((1 - (act[i][j] >> m)) >> 1)
-                    ret.append((j, i, c))
+        for b in range(1, 1 << n):
+            for a in range(1, 1 << m):
+                if abs(act[a][b]) == (1 << m):
+                    c = ((1 - (act[a][b] >> m)) >> 1)
+                    ret.append((b, a, c))
 
         return ret
 
     @lru_cache()
     def is_linear(self):
+        """
+        Checks whether S(x) is a linear transformation,
+        that is, there exists a binary matrix M such that S(x) = M·x,
+        where x is expressed as a column binary vector.
+        """
         LAT = self.linear_approximation_table()
         nrows = 1 << self.m
         ncols = 1 << self.n
@@ -104,6 +139,12 @@ class SBox:
 
     @lru_cache()
     def is_affine(self):
+        """
+        Checks whether S(x) is an affine transformation,
+        that is, there exists a binary matrix A and a binary
+        column vector b such that S(x) = A·x ⊕ b,
+        where x is expressed as a column binary vector.
+        """
         LAT = self.linear_approximation_table()
         nrows = 1 << self.m
         ncols = 1 << self.n
@@ -115,9 +156,13 @@ class SBox:
 
         return True
 
-
     @lru_cache()
     def matrix_equivalent(self):
+        """
+        If it exists, returns the binary matrix M such that S(x) = M·x,
+        where x is expressed as a column binary vector.
+        """
+
         if not self.is_linear():
             return None
 
@@ -137,6 +182,12 @@ class SBox:
 
     @lru_cache()
     def affine_equivalent(self):
+        """
+        If they exists, returns a binary matrix A and a binary
+        column vector b such that S(x) = A·x ⊕ b,
+        where x is expressed as a column binary vector.
+        """
+
         if not self.is_affine():
             return None
 
@@ -160,3 +211,35 @@ class SBox:
                 B.append([1])
 
         return A, B
+
+    @lru_cache()
+    def maximal_linear_bias(self):
+        """
+        Returns all linear approximations that appears with maximal
+        probability and the corresponding probability.
+
+        The first element returned is the probability p,
+        then a list of three-tuples (a, b, c), meaning that
+        a·x = b·S(x)⊕c with probability p, where · denotes a vector
+        dot product.
+        """
+        nrows = 1 << self.m
+        ncols = 1 << self.n
+
+        maximal_bias = 0
+        linear_approximations = []
+
+        LAT = self.linear_approximation_table()
+
+        for y in range(1, ncols):
+            for x in range(1, nrows):
+                if abs(LAT[y][x]) > maximal_bias:
+                    maximal_bias = abs(LAT[y][x])
+                    linear_approximations = []
+
+                if abs(LAT[y][x]) >= maximal_bias:
+                    c = 0 if LAT[y][x] > 0 else 1
+                    linear_approximations.append((y, x, c))
+
+        probability = (maximal_bias / nrows) + 0.5
+        return probability, linear_approximations
