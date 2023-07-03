@@ -2,7 +2,6 @@
 
 import argparse
 import os
-from PIL import Image
 from sys import stderr
 
 from sboxyourmom.sbox import SBox
@@ -88,9 +87,9 @@ for sbox_file in args.input_files:
             print(f"However, these equations hold with probability {round(100*p, 2)}%:")
             for a, b, c in approximations:
                 print(
-                    to_polynomial(a, 'x'),
-                    '=',
                     to_polynomial(b, 'y'),
+                    '=',
+                    to_polynomial(a, 'x'),
                     '⊕ 1' if c == 1 else ''
                 )
             print("where y = S(x).")

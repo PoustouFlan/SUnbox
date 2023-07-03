@@ -1,3 +1,5 @@
+from PIL import Image
+
 def table_to_csv(table):
     result = ''
     for y, line in enumerate(table):
