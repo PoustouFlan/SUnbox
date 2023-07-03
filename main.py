@@ -68,6 +68,8 @@ for sbox_file in args.input_files:
 
     if args.auto:
         debug("Automatic analysis.")
+
+        # Linear cryptanalysis
         if S.is_linear():
             print("SBox is linear! It is equivalent to the following matrix M:")
             for line in S.matrix_equivalent():
@@ -84,18 +86,38 @@ for sbox_file in args.input_files:
         else:
             print("SBox is not linear.")
             p, approximations = S.maximal_linear_bias()
-            print(f"However, these equations hold with probability {round(100*p, 2)}%:")
-            for a, b, c in approximations:
-                print(
-                    to_polynomial(b, 'y'),
-                    '=',
-                    to_polynomial(a, 'x'),
-                    '⊕ 1' if c == 1 else ''
-                )
-            print("where y = S(x).")
+            if p >= 0.6:
+                print(f"However, these equations hold with probability {round(100*p, 2)}%:")
+                for a, b, c in approximations:
+                    print(
+                        to_polynomial(b, 'y'),
+                        '=',
+                        to_polynomial(a, 'x'),
+                        '⊕ 1' if c == 1 else ''
+                    )
+                print("where y = S(x).")
+            if p >= 0.75:
+                print("This can be considered as a cryptographic weakness and can lead to linear cryptanalysis.")
 
-    #debug("Linear structures:")
-    #debug(S.linear_structures())
+            # Linear structures
+            print()
+            linear_structures = S.linear_structures()
+            if len(linear_structures) > 0:
+                print("The SBox has linear structures! "
+                      "For all x,")
+                for b, a, c in linear_structures:
+                    print(f"  {b}·(S(x)⊕S(x⊕{a})) = {c}")
+                print("where · denotes a vector dot product.")
+
+            # Differential cryptanalysis
+            print()
+            p, approximations = S.maximal_differential_bias()
+            if p >= 0.1:
+                print(f"These equations hold with probability {round(100*p, 2)}%:")
+                for a, b in approximations:
+                    print(f"S(x)⊕{b} = S(x⊕{a})")
+                print("This can be considered as a cryptographic weakness and can lead to differential cryptanalysis.")
+
 
     if args.lat:
         debug("Linear Approximation Table")

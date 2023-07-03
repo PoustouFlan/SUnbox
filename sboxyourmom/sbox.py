@@ -243,3 +243,34 @@ class SBox:
 
         probability = (maximal_bias / nrows) + 0.5
         return probability, linear_approximations
+
+    @lru_cache()
+    def maximal_differential_bias(self):
+        """
+        Returns all differential approximations that appears with maximal
+        probability and the corresponding probability.
+
+        The first element returned is the probability p,
+        then a list of two-tuples (a, b), meaning that
+        S(x)⊕b = S(x⊕a) with probability p.
+        """
+        nrows = 1 << self.m
+        ncols = 1 << self.n
+
+        maximal_bias = 0
+        differential_approximations = []
+
+        DDT = self.difference_distribution_table()
+
+        for y in range(1, ncols):
+            for x in range(1, nrows):
+                if DDT[y][x] > maximal_bias:
+                    maximal_bias = DDT[y][x]
+                    differential_approximations = []
+
+                if DDT[y][x] >= maximal_bias:
+                    differential_approximations.append((y, x))
+
+        probability = (maximal_bias / nrows)
+        return probability, differential_approximations
+
