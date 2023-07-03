@@ -54,7 +54,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    '-output',
+    '-output', '-out',
     default = 'stdout',
     help = 'Output directory path or "stdout" to print to standard output'
 )
