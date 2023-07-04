@@ -76,6 +76,9 @@ for sbox_file in args.input_files:
                 print(*line)
             print("That is, SBox(x) = M·x for all x. "
                   "(x represented as a column binary vector)")
+        elif S.is_xor():
+            print("SBox is a simple XOR! It is equivalent to the following equation:")
+            print(f"    S(x) = x ⊕ {S[0]}")
         elif S.is_affine():
             print("SBox is affine! It is equivalent to the following matrices A, B:")
             A, B = S.affine_equivalent()

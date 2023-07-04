@@ -138,6 +138,18 @@ class SBox:
         return True
 
     @lru_cache()
+    def is_xor(self):
+        """
+        Checks whether S(x) is a simple XOR function,
+        that is, there exists an integer k such that S(x) = x ⊕ k.
+        """
+        k = self.S_list[0]
+        for i, y in enumerate(self.S_list):
+            if y != k ^ i:
+                return False
+        return True
+
+    @lru_cache()
     def is_affine(self):
         """
         Checks whether S(x) is an affine transformation,
