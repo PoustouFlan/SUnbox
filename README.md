@@ -81,7 +81,7 @@ $ python main.py -in examples/He2002 -ddt -format csv
 0,0,2,4,2,0,0,0,6,0,0,0,0,0,2,0,
 0,2,0,0,6,0,0,0,0,4,0,2,0,0,2,0,
 
-$ python main.py -in examples/beatboxer -auto
+$ python main.py -in examples/affine -auto
 Automatic analysis.
 SBox is affine! It is equivalent to the following matrices A, B:
 0 0 0 1 0 1 0 0       0
