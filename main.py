@@ -102,25 +102,35 @@ for sbox_file in args.input_files:
             if p >= 0.75:
                 print("This can be considered as a cryptographic weakness and can lead to linear cryptanalysis.")
 
-            # Linear structures
-            print()
-            linear_structures = S.linear_structures()
-            if len(linear_structures) > 0:
-                print("The SBox has linear structures! "
-                      "For all x,")
-                for b, a, c in linear_structures:
-                    print(f"  {b}·(S(x)⊕S(x⊕{a})) = {c}")
-                print("where · denotes a vector dot product.")
 
             # Differential cryptanalysis
             print()
-            p, approximations = S.maximal_differential_bias()
-            if p >= 0.1:
-                print(f"These equations hold with probability {round(100*p, 2)}%:")
+            if S.is_differential():
+                p, approximations = S.maximal_differential_bias()
+                print("SBox is differential! For all x,")
                 for a, b in approximations:
-                    print(f"S(x)⊕{b} = S(x⊕{a})")
-                print("This can be considered as a cryptographic weakness and can lead to differential cryptanalysis.")
+                    if b == 0:
+                        print(f"  S(x) = S(x⊕{a})")
+                    else:
+                        print(f"  S(x)⊕{b} = S(x⊕{a})")
+                print()
+            else:
+                p, approximations = S.maximal_differential_bias()
+                if p >= 0.1:
+                    print(f"These equations hold with probability {round(100*p, 2)}%:")
+                    for a, b in approximations:
+                        print(f"S(x)⊕{b} = S(x⊕{a})")
+                    print("This can be considered as a cryptographic weakness and can lead to differential cryptanalysis.")
 
+                # Linear structures
+                print()
+                linear_structures = S.linear_structures()
+                if len(linear_structures) > 0:
+                    print("The SBox has linear structures! "
+                          "For all x,")
+                    for b, a, c in linear_structures:
+                        print(f"  {b}·(S(x)⊕S(x⊕{a})) = {c}")
+                    print("where · denotes a vector dot product.")
 
     if args.lat:
         debug("Linear Approximation Table")

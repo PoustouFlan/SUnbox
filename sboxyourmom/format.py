@@ -22,7 +22,7 @@ def table_to_ansi(table):
     result = ''
     for y, line in enumerate(table):
         for x, elt in enumerate(line):
-            if elt == 0 or x == 0 or y == 0:
+            if elt == 0 or (x, y) == (0, 0):
                 result += green
             elif abs(elt) == 2:
                 result += green2
@@ -52,7 +52,7 @@ def table_to_png(table):
 
     for y, line in enumerate(table):
         for x, elt in enumerate(line):
-            if elt == 0 or x == 0 or y == 0:
+            if elt == 0 or (x, y) == (0, 0):
                 color = green
             elif abs(elt) == 2:
                 color = green2

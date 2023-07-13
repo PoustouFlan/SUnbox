@@ -1,5 +1,6 @@
 import re
 import numpy as np
+import heapq
 from functools import lru_cache
 from sboxyourmom.hadamard import *
 
@@ -20,6 +21,18 @@ class SBox:
 
     def __getitem__(self, x):
         return self(x)
+
+    def __xor__(self, k):
+        return SBox(x ^ k for x in self.S_list)
+
+    def __mul__(self, k):
+        return SBox((x * k) % (1 << self.n) for x in self.S_list)
+
+    def rotl(self, k):
+        return SBox(
+            ((x << k) | (x >> (self.n - k))) % (1 << self.n)
+            for x in self.S_list
+        )
 
     @classmethod
     def from_file(cls, filename, sep=' |,|;|\t|\r|\n', base=None):
@@ -257,6 +270,24 @@ class SBox:
         return probability, linear_approximations
 
     @lru_cache()
+    def is_differential(self):
+        """
+        Checks whether S(x)⊕b = S(x⊕a) for some a, b.
+        """
+        nrows = 1 << self.m
+        ncols = 1 << self.n
+
+        DDT = self.difference_distribution_table()
+
+        for y in range(ncols):
+            for x in range(nrows):
+                if (x, y) == 0:
+                    continue
+                if DDT[y][x] == DDT[0][0]:
+                    return True
+        return False
+
+    @lru_cache()
     def maximal_differential_bias(self):
         """
         Returns all differential approximations that appears with maximal
@@ -274,8 +305,10 @@ class SBox:
 
         DDT = self.difference_distribution_table()
 
-        for y in range(1, ncols):
-            for x in range(1, nrows):
+        for y in range(0, ncols):
+            for x in range(0, nrows):
+                if (x, y) == (0, 0):
+                    continue
                 if DDT[y][x] > maximal_bias:
                     maximal_bias = DDT[y][x]
                     differential_approximations = []
@@ -285,4 +318,50 @@ class SBox:
 
         probability = (maximal_bias / nrows)
         return probability, differential_approximations
+
+    @lru_cache()
+    def biryukov_perrin_metric(self):
+        """
+        Implements a "distance to identity" metric based on the DDT:
+        M(s) = Σl≥2 Nl(l−2)², where Nl counts coefficients with value
+        l in the DDT of the SBox.
+        """
+        nrows = 1 << self.m
+        ncols = 1 << self.n
+
+        DDT = self.difference_distribution_table()
+        distance = 0
+
+        for y in range(1, ncols):
+            for x in range(1, nrows):
+                if DDT[y][x] > 2:
+                    distance += (DDT[y][x] - 2) ** 2
+
+        return distance
+
+    def break_arithmetic(self):
+        """
+        TODO
+        """
+        target = ((1 << self.m)-2)**2 * ((1 << self.m)-1)
+        heap = [(target - self.biryukov_perrin_metric(), "S", self)]
+
+        t = 0
+        while True:
+            metric, name, sbox = heapq.heappop(heap)
+            for k in range(1 << self.m):
+                print(k)
+                sbox2 = sbox ^ k
+                for r in range(self.m):
+                    sbox3 = sbox2.rotl(r)
+                    for i in range(1 << (self.m-1)):
+                        m = i*2+1
+                        sbox4 = sbox3 * m
+                        heapq.heappush(heap, (
+                            target - sbox4.biryukov_perrin_metric(),
+                            f"{name}⊕{k}<<<{r}·{m}",
+                            sbox4
+                        ))
+            break
+        print(heap[0])
 
