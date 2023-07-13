@@ -93,6 +93,7 @@ for sbox_file in args.input_files:
                 print(f"However, these equations hold with probability {round(100*p, 2)}%:")
                 for a, b, c in approximations:
                     print(
+                        ' ',
                         to_polynomial(b, 'y'),
                         '=',
                         to_polynomial(a, 'x'),
