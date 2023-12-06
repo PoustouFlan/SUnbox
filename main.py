@@ -4,8 +4,8 @@ import argparse
 import os
 from sys import stderr
 
-from sboxyourmom.sbox import SBox
-from sboxyourmom.format import *
+from sunbox.sbox import SBox
+from sunbox.format import *
 
 def debug(*args, **kwargs):
     print(*args, **kwargs, file = stderr, flush = True)
