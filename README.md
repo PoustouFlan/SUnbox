@@ -1,6 +1,6 @@
-# SBoxYourMom
+# SUnbox
 
-SBoxYourMom is an open-source SBox analysis utility
+SUnbox is an open-source SBox analysis utility
 written in Python.
 It provides a set of commands to automatically analyze
 substitution boxes (SBoxes), mainly used in cryptography.
@@ -20,8 +20,8 @@ information.
 ## Installation
 
 ```shell
-git clone https://github.com/PoustouFlan/SBoxYourMom.git
-cd SBoxYourMom
+git clone https://github.com/PoustouFlan/SUnbox.git
+cd SUnbox
 pip install -r requirements.txt
 ```
 
@@ -97,7 +97,7 @@ That is, SBox(x) = A·x ⊕ B for all x. (x represented as a column binary vecto
 
 ## License
 
-SBoxYourMom is released under the MIT License
+SUnbox is released under the MIT License
 
 ## Contributing
 
