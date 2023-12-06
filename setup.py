@@ -3,10 +3,10 @@
 from setuptools import setup, find_packages
 
 setup(
-    name = 'sbox-your-mom',
+    name = 'sunbox',
     version = '1.0',
     packages = find_packages(
-        include=['sboxyourmom','sboxyourmom.*']
+        include=['sunbox','sunbox.*']
     ),
     scripts = ['main.py'],
     install_requires=[

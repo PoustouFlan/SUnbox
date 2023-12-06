@@ -4,7 +4,7 @@
 }:
 
 python3.pkgs.buildPythonApplication {
-  pname = "sbox-your-mom";
+  pname = "sunbox";
   version = "1.0.0";
 
   src = ./.;

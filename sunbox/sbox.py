@@ -2,7 +2,7 @@ import re
 import numpy as np
 import heapq
 from functools import lru_cache
-from sboxyourmom.hadamard import *
+from sunbox.hadamard import *
 
 class SBox:
     def __init__(self, *args):
