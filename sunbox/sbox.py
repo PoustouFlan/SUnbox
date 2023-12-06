@@ -281,7 +281,7 @@ class SBox:
 
         for y in range(ncols):
             for x in range(nrows):
-                if (x, y) == 0:
+                if (x, y) == (0, 0):
                     continue
                 if DDT[y][x] == DDT[0][0]:
                     return True
