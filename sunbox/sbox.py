@@ -288,6 +288,16 @@ class SBox:
         return False
 
     @lru_cache()
+    def is_bijective(self):
+        """
+        Checks whether the SBox is bijective.
+        """
+        if self.m != self.n:
+            return False
+        expected_range = set(range(2**self.m))
+        return set(self.S_list) == expected_range
+
+    @lru_cache()
     def maximal_differential_bias(self):
         """
         Returns all differential approximations that appears with maximal
@@ -364,4 +374,3 @@ class SBox:
                         ))
             break
         print(heap[0])
-
