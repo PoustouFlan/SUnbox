@@ -70,6 +70,8 @@ for sbox_file in args.input_files:
         debug("Automatic analysis.")
 
         # Linear cryptanalysis
+        if not S.is_bijective():
+            print("Warning: The SBox is not bijective.")
         if S.is_linear():
             print("SBox is linear! It is equivalent to the following matrix M:")
             for line in S.matrix_equivalent():
